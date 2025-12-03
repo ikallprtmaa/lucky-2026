@@ -5,14 +5,27 @@ import { Sparkles, Heart, Briefcase, Shield, Zap, Calendar, Camera, Share2, Chev
  * 2026 럭키 유니버스 (Lucky Universe 2026) - Hanyang Univ. Project Ver.
  */
 
+// [수정됨] API 키 관련 로직은 serverless/api/fortune.js로 이동하여 클라이언트에서는 제거합니다.
+/*
+// --- API Service Configuration (Multi-Key Load Balancing) ---
+const API_KEY_POOL = [
+  import.meta.env.VITE_API_KEY_1,
+  import.meta.env.VITE_API_KEY, // 기본 키(백업용)
+].filter(key => key); // 비어있는 키는 자동으로 제외
 
+// 랜덤 키 선택 함수
+const getApiKey = () => {
+  if (API_KEY_POOL.length === 0) return "";
+  return API_KEY_POOL[Math.floor(Math.random() * API_KEY_POOL.length)];
+};
+*/
 
 // --- Utility Functions ---
 
 // 마크다운 제거 함수
 const cleanMarkdown = (text) => {
     if (!text) return "";
-    return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/`/g, "");
+    return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/`/g, "").trim(); // [수정됨] trim 추가
 };
 
 // 운세 결과 카드 이미지 생성 함수
@@ -265,7 +278,7 @@ async function generateCutePixelArtSVG(description) {
       2. The art should look like a retro game sprite (Pokemon/Tamagotchi), 24x24 or 32x32 grid.
       3. Colors: Vibrant pastel colors + Black outline for contrast.
       4. ViewBox: "0 0 512 512" (scale up the pixels).
-      5. Return ONLY the raw <svg> string. No markdown. No explanations.
+      5. Return ONLY the raw <svg> string. No markdown. No explanations. IF YOU CANNOT GENERATE VALID SVG, RETURN A SIMPLE PLACEHOLDER SVG.
     `;
 
     try {
@@ -276,13 +289,19 @@ async function generateCutePixelArtSVG(description) {
         if (svgMatch) svgCode = svgMatch[0];
         else svgCode = svgCode.replace(/```xml|```svg|```/g, "").trim();
 
-        if (!svgCode.startsWith('<svg')) throw new Error("Invalid SVG Code");
+        if (!svgCode.startsWith('<svg')) {
+             console.warn("SVG generation failed to return valid SVG. Using placeholder.");
+             // 유효하지 않은 응답일 경우, 대체 SVG 플레이스홀더를 반환합니다.
+             svgCode = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="512" height="512" fill="#cccccc"/><text x="256" y="270" font-size="60" fill="#000000" text-anchor="middle">👾</text><text x="256" y="340" font-size="20" fill="#000000" text-anchor="middle">Error: Image Gen Failed</text></svg>`;
+        }
 
         const base64Svg = btoa(unescape(encodeURIComponent(svgCode)));
         return `data:image/svg+xml;base64,${base64Svg}`;
 
     } catch (e) {
         console.error("SVG Gen Error:", e);
+        // API 호출 자체가 실패한 경우, 사용자에게 알림을 줍니다.
+        alert("이미지 생성 서버 통신 오류! 잠시 후 다시 시도해주세요.");
         return null;
     }
 }
@@ -324,19 +343,25 @@ async function generateChatResponse(history, userData, fortuneSummary) {
   const systemPrompt = `
     You are 'Lucky Tamagotchi'.
     Info: MBTI=${userData.mbti}, Fortune="${fortuneSummary}".
-    Persona: Cute, informal Korean(Banmal), lots of emojis.
+    Persona: Cute, informal Korean(Banmal), **적절한 이모지 사용**을 유지할 것.
+    **절대 JSON 형식을 사용하지 말고,** 순수한 대화 텍스트만 출력할 것.
     No Markdown formatting (bold, italic).
   `;
 
   // history를 포함하는 최종 프롬프트 구성
   const prompt = systemPrompt + "\n\nChat History:\n" + 
     history.map(msg => `${msg.role}: ${msg.text}`).join('\n') + 
-    "\n\nTamagotchi:";
+    "\n\nTamagotchi's Response (ONLY plain text):"; // [수정됨] 응답 포맷 명확히 지정
 
   try {
     const data = await callServerlessAPI(prompt); // [수정됨] 서버리스 API 호출
     
     let responseText = data.candidates[0].content.parts[0].text;
+    // [수정됨] 불필요한 JSON wrapper 제거 로직 추가 (혹시 모를 상황 대비)
+    const unwantedPrefix = /^{\s*["']?Tamagotchi["']?\s*:\s*["']?/;
+    const unwantedSuffix = /["']?\s*,\s*}?$/;
+    responseText = responseText.replace(unwantedPrefix, '').replace(unwantedSuffix, '').trim();
+
     return cleanMarkdown(responseText);
 
   } catch (error) {
