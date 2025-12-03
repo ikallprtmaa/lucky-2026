@@ -5,27 +5,13 @@ import { Sparkles, Heart, Briefcase, Shield, Zap, Calendar, Camera, Share2, Chev
  * 2026 럭키 유니버스 (Lucky Universe 2026) - Hanyang Univ. Project Ver.
  */
 
-// --- API Service Configuration (Multi-Key Load Balancing) ---
-const API_KEY_POOL = [
-  import.meta.env.VITE_API_KEY_1,
-  import.meta.env.VITE_API_KEY, // 기본 키(백업용)
-].filter(key => key); // 비어있는 키는 자동으로 제외
-
-// 랜덤 키 선택 함수
-const getApiKey = () => {
-  if (API_KEY_POOL.length === 0) return "";
-  return API_KEY_POOL[Math.floor(Math.random() * API_KEY_POOL.length)];
-};
-
 // --- Utility Functions ---
 
-// 마크다운 제거 함수
 const cleanMarkdown = (text) => {
     if (!text) return "";
     return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/`/g, "");
 };
 
-// 운세 결과 카드 이미지 생성 함수
 async function generateFortuneCardImage(fortuneData) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -35,8 +21,8 @@ async function generateFortuneCardImage(fortuneData) {
 
     // 배경
     const gradient = ctx.createLinearGradient(0, 0, 0, 800);
-    gradient.addColorStop(0, '#FFF5F7'); // 연한 핑크
-    gradient.addColorStop(1, '#E0E7FF'); // 연한 블루
+    gradient.addColorStop(0, '#FFF5F7'); 
+    gradient.addColorStop(1, '#E0E7FF'); 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 800, 800);
 
@@ -51,14 +37,14 @@ async function generateFortuneCardImage(fortuneData) {
     ctx.textAlign = 'center';
     ctx.fillText('2026 럭키 유니버스', 400, 100);
 
-    // 이모지 장식
+    // 이모지
     ctx.font = '60px serif';
     ctx.fillText('🔮', 150, 100);
     ctx.fillText('🍀', 650, 100);
 
-    // 요약 텍스트
+    // 요약
     ctx.font = 'bold 40px "Malgun Gothic", sans-serif';
-    ctx.fillStyle = '#DB2777'; // 핑크색
+    ctx.fillStyle = '#DB2777'; 
     
     const words = fortuneData.summary.split(' ');
     let line = '';
@@ -94,22 +80,18 @@ async function generateFortuneCardImage(fortuneData) {
     return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
 }
 
-// SVG Data URL을 PNG Blob으로 변환
 function svgDataURLToPngBlob(svgDataUrl) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = "Anonymous"; 
-        
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            canvas.width = 1024; 
-            canvas.height = 1024;
-            
+            canvas.width = 512; 
+            canvas.height = 512;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF'; // 투명 배경 방지
+            ctx.fillStyle = '#FFFFFF'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
             canvas.toBlob((blob) => {
                 if (blob) resolve(blob);
                 else reject(new Error("PNG conversion failed."));
@@ -164,226 +146,138 @@ const normalizeFortuneData = (data) => {
   };
 };
 
-// --- API Calls ---
+// --- API Calls (Client Side -> Serverless Function) ---
 
-async function generateFullFortune(userData) {
-  if (API_KEY_POOL.length === 0) {
-     // 로컬에서 키가 아예 없으면 경고
-     if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        alert("🚨 API 키가 설정되지 않았습니다!\n.env 파일에 VITE_API_KEY_1, VITE_API_KEY_2 등을 설정해주세요.\nApp.jsx 상단의 주석도 확인해주세요.");
-     }
-     return null;
-  }
+// 공통 요청 함수: 이제 모든 요청은 /api/fortune 으로 보냅니다.
+async function callServerlessAPI(prompt, retryCount = 3) {
+    let delay = 1000;
 
-  const MAX_RETRIES = 3;
-  let delay = 1000;
+    for (let i = 0; i < retryCount; i++) {
+        try {
+            const response = await fetch('/api/fortune', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt })
+            });
 
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const currentKey = getApiKey(); // 시도할 때마다 랜덤 키 뽑기 (로드 밸런싱)
-    
-    const prompt = `
-    역할: 30년 경력의 명리학자이자 MZ세대 멘토인 AI 점술가.
-    임무: 2026년(병오년, 적토마의 해) 종합 운세, '오늘'의 운세, '오늘'의 연애운 분석.
-    사용자 정보: ${userData.birthDate}생, 태어난 시간 ${userData.time || '모름'}, 성별 ${userData.gender}, MBTI ${userData.mbti}.
-    톤앤매너: 키치하고 귀여운 말투(해요체), 이모지 적극 활용, 위트 있는 비유.
+            if (response.status === 429) {
+                console.warn(`Rate limit (429). Retrying in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+                delay *= 2;
+                continue;
+            }
 
-    요청사항: 다음 항목들을 모두 분석하여 반드시 유효한 JSON 형식으로만 응답해주세요.
-    
-    1. [2026 종합 요약] summary: 2026년 총운을 위트 있는 한 문장으로 요약.
-    2. [해시태그] hashtags: 핵심 키워드 해시태그 3개.
-    3. [2026 상세 운세] details: 재물(wealth), 애정(love), 직업(career), 건강(health) 4가지 분야별 조언.
-    4. [오늘의 운세 게임] daily:
-       - todaySummary: 오늘 하루의 운세를 나타내는 짧고 굵은 한마디.
-       - score: 오늘의 운세 점수 (0~100 숫자).
-       - mission: 오늘 실천할 행운의 미션 1가지.
-       - lotto: 행운의 로또 번호 6개.
-       - initial: 행운의 초성 2개 (반드시 2글자, 예: "ㄱㅎ").
-    5. [오늘의 사랑 찾기] loveMatch:
-       - charmScore: *오늘* 나의 도화살/매력도 점수 (0~100 숫자).
-       - bestMbti: *오늘* 가장 잘 맞는 운명의 MBTI.
-       - advice: *오늘*을 위한 연애 조언 및 데이트 팁.
-    6. [2026 직업/재물] careerWealth:
-       - jobs: 추천 직무명 3개.
-       - workStyle: 업무 스타일 키워드.
-       - salary: 2026년 재물운 예측 (중요: 사용자의 생년월일 ${userData.birthDate} 기준 나이에 맞는 현실적인 소득원(용돈, 알바비, 장학금, 월급 등)을 언급하며 1~2문장으로 간결하게 표현할 것).
-       - hiddenSkill: 숨겨진 재능 1가지.
-    7. [빌런 탐지기] villain: 2026년에 조심해야 할 사람 특징.
-    8. [대박 캘린더] luckyDates: 2026년 중 가장 운이 좋은 날짜 3개.
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Server Error: ${response.status} ${errText}`);
+            }
 
-    JSON Output Schema Example:
-    {
-      "summary": "...",
-      "hashtags": ["...", "...", "..."],
-      "details": { "wealth": "...", "love": "...", "career": "...", "health": "..." },
-      "daily": { "todaySummary": "...", "score": 90, "mission": "...", "lotto": [1, 2, 3, 4, 5, 6], "initial": "ㅅㅎ" },
-      "loveMatch": { "charmScore": 85, "bestMbti": "ENFP", "advice": "..." },
-      "careerWealth": { "jobs": ["...", "...", "..."], "workStyle": "...", "salary": "...", "hiddenSkill": "..." },
-      "villain": "...",
-      "luckyDates": ["3월 5일", "7월 20일", "11월 11일"]
+            return await response.json();
+        } catch (e) {
+            console.error(`Attempt ${i+1} failed:`, e);
+            if (i === retryCount - 1) throw e;
+            await new Promise(r => setTimeout(r, delay));
+            delay *= 2;
+        }
     }
-  `;
-
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: "application/json" }
-        })
-      });
-
-      if (response.status === 429) {
-          console.warn(`Rate limit hit (Key: ...${currentKey.slice(-4)}). Retrying...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          delay *= 2;
-          continue; 
-      }
-
-      if (!response.ok) throw new Error(`API Request Failed: ${response.status}`);
-      const data = await response.json();
-      const textResponse = data.candidates[0].content.parts[0].text;
-      return normalizeFortuneData(safeJSONParse(textResponse));
-
-    } catch (error) {
-        console.error(`Attempt ${attempt + 1} failed:`, error);
-        if (attempt === MAX_RETRIES - 1) break;
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay *= 2;
-    }
-  }
-  alert("앗! 지금 사용자가 너무 많아서 AI 점술가가 조금 바빠요! 🤯\n잠시 뒤에 다시 시도해 주시면 금방 봐드릴게요! 🍀");
-  return null;
 }
 
-// [무료 모드] 8비트 픽셀 아트(도트) 생성 함수 (SVG)
+async function generateFullFortune(userData) {
+  const prompt = `
+    역할: 30년 경력의 명리학자이자 MZ세대 멘토인 AI 점술가.
+    임무: 2026년(병오년, 적토마의 해) 종합 운세.
+    사용자 정보: ${userData.birthDate}생, 성별 ${userData.gender}, MBTI ${userData.mbti}.
+    요청사항: 반드시 JSON 형식으로만 응답.
+
+    1. [종합 요약] summary: 한 문장 요약.
+    2. [해시태그] hashtags: 키워드 3개.
+    3. [상세 운세] details: 재물, 애정, 직업, 건강 (각 1~2문장).
+    4. [오늘의 운세] daily: todaySummary, score(0-100), mission, lotto(6개), initial(초성 2개).
+    5. [연애운] loveMatch: charmScore, bestMbti, advice.
+    6. [직업/재물] careerWealth: jobs, workStyle, salary(나이(${userData.birthDate} 기준)에 맞는 현실적 소득원, 2줄 이내), hiddenSkill.
+    7. [빌런] villain.
+    8. [대박 캘린더] luckyDates(3개).
+
+    JSON Example:
+    { "summary": "...", "hashtags": ["..."], "details": {...}, "daily": {...}, "loveMatch": {...}, "careerWealth": {...}, "villain": "...", "luckyDates": [...] }
+  `;
+
+  try {
+    const data = await callServerlessAPI(prompt);
+    const textResponse = data.candidates[0].content.parts[0].text;
+    return normalizeFortuneData(safeJSONParse(textResponse));
+  } catch (error) {
+    console.error(error);
+    alert("AI 점술가가 너무 바빠요! 🤯 (사용량 초과)\n잠시 후 다시 시도해주세요 🍀");
+    return null;
+  }
+}
+
 async function generateCutePixelArtSVG(description) {
     const svgPrompt = `
       Role: Expert Pixel Artist.
       Task: Create a CUTE, 8-BIT PIXEL ART SVG code for: "${description}".
-      
-      IMPORTANT INSTRUCTIONS:
-      1. Use ONLY <rect> elements to create a pixel art look. Do NOT use <path>, <circle>, or <ellipse>.
-      2. The art should look like a retro game sprite (Pokemon/Tamagotchi), 24x24 or 32x32 grid.
-      3. Colors: Vibrant pastel colors + Black outline for contrast.
-      4. ViewBox: "0 0 512 512" (scale up the pixels).
-      5. Return ONLY the raw <svg> string. No markdown. No explanations.
+      Requirements: ONLY <rect> elements, Retro game style, Vibrant pastel colors, ViewBox "0 0 512 512".
+      Return ONLY the raw <svg> string. No markdown.
     `;
 
-    const MAX_RETRIES = 3;
-    let delay = 1000;
+    try {
+        const data = await callServerlessAPI(svgPrompt);
+        let svgCode = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        
+        const svgMatch = svgCode.match(/<svg[\s\S]*?<\/svg>/i);
+        if (svgMatch) svgCode = svgMatch[0];
+        else svgCode = svgCode.replace(/```xml|```svg|```/g, "").trim();
 
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-        try {
-            const currentKey = getApiKey(); // 이미지 생성 시에도 랜덤 키 사용
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentKey}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: svgPrompt }] }] })
-            });
-
-            if (response.status === 429) {
-                await new Promise(resolve => setTimeout(resolve, delay));
-                delay *= 2;
-                continue; 
-            }
-
-            if (!response.ok) throw new Error("SVG Gen Failed");
-            const data = await response.json();
-            let svgCode = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-            
-            const svgMatch = svgCode.match(/<svg[\s\S]*?<\/svg>/i);
-            if (svgMatch) svgCode = svgMatch[0];
-            else svgCode = svgCode.replace(/```xml|```svg|```/g, "").trim();
-
-            if (!svgCode.startsWith('<svg')) throw new Error("Invalid SVG Code");
-
-            const base64Svg = btoa(unescape(encodeURIComponent(svgCode)));
-            return `data:image/svg+xml;base64,${base64Svg}`;
-
-        } catch (e) {
-            if (attempt === MAX_RETRIES - 1) break;
-            await new Promise(resolve => setTimeout(resolve, delay));
-            delay *= 2;
-        }
+        if (!svgCode.startsWith('<svg')) throw new Error("Invalid SVG");
+        return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgCode)))}`;
+    } catch (e) {
+        console.error("SVG Error:", e);
+        return null;
     }
-    return null;
 }
 
 async function generateLuckyIconImage(wish, userData) {
-  if (API_KEY_POOL.length === 0) {
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-          alert("API 키 설정을 확인해주세요.");
-      }
-      return null;
-  }
-  
   try {
+    // 1. 텍스트 프롬프트 생성
     const designPrompt = `
       Analyze MBTI: ${userData.mbti}, Wish: "${wish}".
-      Select a CUTE ANIMAL (e.g., Rabbit, Bear, Cat).
-      Describe it holding an object related to the wish.
+      Select a CUTE ANIMAL (e.g., Rabbit, Bear).
       Output format: "A [Adjective] [Animal] [Action]"
     `;
+    const designData = await callServerlessAPI(designPrompt);
+    let charDesc = "cute fluffy rabbit";
+    const extracted = designData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (extracted) charDesc = extracted;
 
-    const currentKey = getApiKey();
-    const designResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: designPrompt }] }] })
-    });
-
-    if (!designResponse.ok) throw new Error("Text Gen Failed");
-    
-    let characterDescription = "cute fluffy rabbit";
-    const designData = await designResponse.json();
-    const extractedText = designData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (extractedText) characterDescription = extractedText;
-
-    const imageUrl = await generateCutePixelArtSVG(characterDescription);
-    if (!imageUrl) throw new Error("Image Generation Failed");
+    // 2. SVG 생성
+    const imageUrl = await generateCutePixelArtSVG(charDesc);
+    if (!imageUrl) throw new Error("Img Gen Failed");
     return imageUrl;
-
   } catch (error) {
-    console.error("Icon Gen Error:", error);
-    alert("앗! AI 화가님이 바쁜가 봐요! 🎨💦\n잠시 뒤에 다시 부탁해볼까요?");
+    console.error(error);
+    alert("AI 화가님이 바빠요! 🎨💦\n잠시 후 다시 부탁해볼까요?");
     return null;
   }
 }
 
-// Gemini Chat Function
 async function generateChatResponse(history, userData, fortuneSummary) {
-  const currentKey = getApiKey();
-  if (!currentKey) return "API 키 오류입니다.";
-
-  const systemPrompt = `
-    You are 'Lucky Tamagotchi'.
-    Info: MBTI=${userData.mbti}, Fortune="${fortuneSummary}".
-    Persona: Cute, informal Korean(Banmal), lots of emojis.
-    No Markdown formatting (bold, italic).
+  const historyText = history.map(msg => `${msg.role}: ${msg.text}`).join('\n');
+  const fullPrompt = `
+    Role: 'Lucky Tamagotchi'. Info: MBTI=${userData.mbti}, Fortune="${fortuneSummary}".
+    Persona: Cute, informal Korean, lots of emojis. No Markdown.
+    
+    Chat History:
+    ${historyText}
+    
+    Tamagotchi:
   `;
 
-  const messages = [
-    { role: "user", parts: [{ text: systemPrompt }] },
-    ...history.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.text }]
-    }))
-  ];
-
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: messages })
-    });
-
-    if (!response.ok) throw new Error("Chat Failed");
-    const data = await response.json();
-    let responseText = data.candidates[0].content.parts[0].text;
-    return cleanMarkdown(responseText);
+    const data = await callServerlessAPI(fullPrompt);
+    return cleanMarkdown(data.candidates[0].content.parts[0].text);
   } catch (error) {
-    return "통신이 불안정해! 다시 말해줄래? 📡";
+    return "통신이 불안정해! 📡";
   }
 }
 
@@ -532,6 +426,8 @@ const InputView = ({ userData, setUserData, onSubmit }) => {
               type="date" 
               className="w-full p-3 border-2 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-300 text-lg"
               value={userData.birthDate}
+              // [수정됨] 연도 입력 4자리 제한 (max 속성 추가)
+              max="9999-12-31"
               onChange={(e) => setUserData({...userData, birthDate: e.target.value})}
             />
           </div>
@@ -856,7 +752,6 @@ const ChatView = ({ messages, onSendMessage, onBack }) => {
 
 
 const TalismanResultView = ({ image, userData, fortuneData, onReset, onBack, onChatStart }) => {
-    // [수정됨] 이미지 저장 오류 해결 (Canvas 활용하여 PNG 변환 후 저장)
     const handleDownload = async () => {
         try {
             const blob = await svgDataURLToPngBlob(image);
