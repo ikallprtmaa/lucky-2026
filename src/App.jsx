@@ -155,33 +155,31 @@ const normalizeFortuneData = (data) => {
 // --- API Calls (Client Side -> Serverless Endpoint) ---
 
 // [추가됨] 서버리스 엔드포인트 호출 및 에러/재시도 처리 함수
-async function callServerlessAPI(prompt, retryCount = 3) {
+// responseType 파라미터 추가 (기본값 'json')
+async function callServerlessAPI(prompt, retryCount = 3, responseType = 'json') {
   let delay = 1000;
 
   for (let i = 0; i < retryCount; i++) {
     try {
-      // Vercel 서버리스 엔드포인트 호출
       const response = await fetch('/api/fortune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt }) // fortune.js에서 req.body.prompt로 접근
+        // body에 responseType 포함
+        body: JSON.stringify({ prompt: prompt, responseType: responseType }) 
       });
 
       if (response.status === 429 || response.status === 503) {
-        // 503 (Service Unavailable/Model Overload) 발생 시에도 재시도
-        console.warn(`API Error ${response.status} (Rate limit/Overload). Retrying in ${delay}ms...`);
+        console.warn(`API Error ${response.status}. Retrying...`);
         await new Promise(r => setTimeout(r, delay));
         delay *= 2;
         continue;
       }
 
       if (!response.ok) {
-        // 서버리스 함수 내부에서 발생한 에러 메시지를 클라이언트에게 전달
         const errorData = await response.json();
         throw new Error(`Server Error: ${response.status} - ${errorData.error || response.statusText}`);
       }
 
-      // 서버리스 함수는 Gemini 응답 JSON을 그대로 전달함
       return await response.json();
     } catch (e) {
       console.error(`Attempt ${i+1} failed:`, e);
@@ -190,7 +188,7 @@ async function callServerlessAPI(prompt, retryCount = 3) {
       delay *= 2;
     }
   }
-  throw new Error("API 호출에 실패했습니다. 잠시 후 다시 시도해주세요.");
+  throw new Error("API 호출에 실패했습니다.");
 }
 
 
@@ -263,35 +261,38 @@ async function generateCutePixelArtSVG(description) {
       3. Colors: Vibrant pastel colors + Black outline for contrast.
       4. ViewBox: "0 0 512 512" (scale up the pixels).
       5. Return **ONLY the raw <svg> string**. No markdown. No explanations.
-    `; // [수정됨] SVG 포맷을 더 명확하게 강조
+    `;
 
     try {
-        const data = await callServerlessAPI(svgPrompt); // 서버리스 API 호출
+        // [중요] responseType을 'text'로 지정하여 순수 SVG 문자열을 받도록 요청
+        const data = await callServerlessAPI(svgPrompt, 3, 'text'); 
+        
         let svgCode = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
         
+        // 마크다운 코드블록 제거 로직 강화
         const svgMatch = svgCode.match(/<svg[\s\S]*?<\/svg>/i);
-        if (svgMatch) svgCode = svgMatch[0];
-        else svgCode = svgCode.replace(/```xml|```svg|```/g, "").trim();
-
-        if (!svgCode.startsWith('<svg')) {
-             console.warn("SVG generation failed to return valid SVG. Using placeholder.");
-             // 유효하지 않은 응답일 경우, 대체 SVG 플레이스홀더를 반환합니다.
-             svgCode = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="512" height="512" fill="#cccccc"/><text x="256" y="270" font-size="60" fill="#000000" text-anchor="middle">👾</text><text x="256" y="340" font-size="20" fill="#000000" text-anchor="middle">Error: Image Gen Failed</text></svg>`;
+        if (svgMatch) {
+            svgCode = svgMatch[0];
+        } else {
+            svgCode = svgCode.replace(/```xml/gi, "").replace(/```svg/gi, "").replace(/```/g, "").trim();
         }
 
+        if (!svgCode.startsWith('<svg')) {
+             console.warn("Invalid SVG received. Using placeholder.");
+             svgCode = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="512" height="512" fill="#f0f0f0"/><text x="50%" y="50%" font-size="60" fill="#000000" text-anchor="middle" dominant-baseline="middle">👾</text></svg>`;
+        }
+
+        // UTF-8 문자 깨짐 방지를 위한 인코딩 처리
         const base64Svg = btoa(unescape(encodeURIComponent(svgCode)));
         return `data:image/svg+xml;base64,${base64Svg}`;
 
     } catch (e) {
         console.error("SVG Gen Error:", e);
-        // API 호출 자체가 실패한 경우, 사용자에게 알림을 줍니다.
-        alert("이미지 생성 서버 통신 오류! 잠시 후 다시 시도해주세요.");
-        return null;
+        return null; // 호출부에서 처리하도록 null 반환
     }
 }
 
 async function generateLuckyIconImage(wish, userData) {
-  
   try {
     const designPrompt = `
       Analyze MBTI: ${userData.mbti}, Wish: "${wish}".
@@ -300,14 +301,14 @@ async function generateLuckyIconImage(wish, userData) {
       Output format: "A [Adjective] [Animal] [Action]"
     `;
 
-    // 1. Text generation using serverless function
-    const designData = await callServerlessAPI(designPrompt); // 서버리스 API 호출
+    // 1. Text generation: JSON 형식이 필요 없으므로 'text' 모드로 호출
+    const designData = await callServerlessAPI(designPrompt, 3, 'text'); 
 
     let characterDescription = "cute fluffy rabbit";
     const extractedText = designData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     if (extractedText) characterDescription = extractedText;
 
-    // 2. SVG generation using the helper function (which also uses callServerlessAPI)
+    // 2. SVG generation
     const imageUrl = await generateCutePixelArtSVG(characterDescription);
     if (!imageUrl) throw new Error("Image Generation Failed");
     return imageUrl;
@@ -336,15 +337,12 @@ async function generateChatResponse(history, userData, fortuneSummary) {
     "\n\nTamagotchi's Response (ONLY plain text):"; 
 
   try {
-    const data = await callServerlessAPI(prompt); // 서버리스 API 호출
+    // 채팅은 자유로운 텍스트 형식이므로 'text' 모드로 호출
+    const data = await callServerlessAPI(prompt, 3, 'text');
     
     let responseText = data.candidates[0].content.parts[0].text;
     
-    // 불필요한 JSON wrapper 제거 로직 (혹시 모를 상황 대비)
-    const unwantedPrefix = /^{\s*["']?Tamagotchi["']?\s*:\s*["']?/;
-    const unwantedSuffix = /["']?\s*,\s*}?$/;
-    responseText = responseText.replace(unwantedPrefix, '').replace(unwantedSuffix, '').trim();
-
+    // JSON 모드가 아니므로 불필요한 래퍼 제거 로직이 덜 필요하지만 안전하게 유지
     return cleanMarkdown(responseText);
 
   } catch (error) {

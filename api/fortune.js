@@ -1,27 +1,31 @@
-
 export default async function handler(req, res) {
   const apiKeys = [
     process.env.VITE_API_KEY_1,
     process.env.VITE_API_KEY_2,
     process.env.VITE_API_KEY_3,
-    process.env.VITE_API_KEY, // 기본 키
-  ].filter((key) => key); // 비어있지 않은 키만 걸러냅니다.
+    process.env.VITE_API_KEY,
+  ].filter((key) => key);
 
   if (apiKeys.length === 0) {
     return res.status(500).json({ error: 'Server API Key configuration error' });
   }
 
-  // 2. 키 중 하나를 랜덤으로 뽑습니다. (로드 밸런싱)
   const randomKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
 
-  const { prompt } = req.body;
+  // 클라이언트에서 responseType을 받아옴 (기본값은 'json')
+  const { prompt, responseType = 'json' } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is missing' });
   }
 
+  // responseType이 'json'일 때만 MIME 타입 강제 설정
+  const generationConfig = {};
+  if (responseType === 'json') {
+    generationConfig.responseMimeType = 'application/json';
+  }
+
   try {
-    // 3. 구글 Gemini API 호출
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${randomKey}`,
       {
@@ -31,7 +35,7 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json' },
+          generationConfig: generationConfig, // 동적 설정 적용
         }),
       }
     );
@@ -39,8 +43,6 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API Error:', response.status, errorText);
-      
-      // 429 에러(사용량 초과)인 경우 클라이언트에 알려줍니다.
       if (response.status === 429) {
         return res.status(429).json({ error: 'Too Many Requests' });
       }
